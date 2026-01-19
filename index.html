@@ -342,65 +342,64 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
-        /* Garden Layout */
+        /* Garden Layout - Simplified Practical Version */
         .garden-layout-container {
             overflow: auto;
             padding: 1rem;
             background: var(--soil-brown);
             border-radius: 15px;
-            max-height: 600px;
         }
         
         .garden-grid {
             display: grid;
-            gap: 2px;
+            gap: 3px;
             background: var(--bark-brown);
             padding: 10px;
             border-radius: 10px;
             width: fit-content;
-            min-width: 100%;
         }
         
         .garden-cell {
-            width: 40px;
-            height: 40px;
-            background: #654321;
+            width: 28px;
+            height: 28px;
+            background: #5D4037;
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.6rem;
+            transition: all 0.15s ease;
+            font-size: 0.65rem;
             color: white;
             text-align: center;
-            position: relative;
+            font-weight: bold;
+            user-select: none;
         }
         
         .garden-cell:hover {
-            transform: scale(1.1);
+            transform: scale(1.15);
             z-index: 10;
-            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
         
         .garden-cell.occupied {
-            background: var(--forest-green);
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,0.3);
         }
         
-        .garden-cell.dragging-over {
-            background: var(--honey-gold);
-            transform: scale(1.15);
+        .garden-cell.selected-plant-cell {
+            animation: pulse 1s infinite;
         }
         
-        .garden-cell.selected {
-            outline: 3px solid var(--honey-gold);
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(232, 168, 56, 0.7); }
+            50% { box-shadow: 0 0 0 4px rgba(232, 168, 56, 0); }
         }
-        
+
         /* Layout Legend */
         .layout-legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
             margin-top: 1rem;
             padding: 1rem;
             background: var(--parchment);
@@ -412,12 +411,16 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            background: var(--cream);
+            border-radius: 8px;
         }
         
         .legend-color {
             width: 20px;
             height: 20px;
             border-radius: 4px;
+            border: 2px solid rgba(0,0,0,0.2);
         }
         
         /* Task Checklist */
@@ -456,6 +459,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            flex-shrink: 0;
         }
         
         .task-checkbox.checked {
@@ -559,53 +563,6 @@
             color: var(--bark-light);
         }
         
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            padding: 1rem;
-        }
-        
-        .modal {
-            background: var(--cream);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border: 4px solid var(--honey-gold);
-        }
-        
-        .modal-title {
-            font-family: 'Caveat', cursive;
-            font-size: 2rem;
-            color: var(--forest-green);
-            margin-bottom: 1rem;
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: var(--bark-light);
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-        
         /* Status Legend */
         .status-legend {
             display: flex;
@@ -667,23 +624,9 @@
             }
             
             .garden-cell {
-                width: 30px;
-                height: 30px;
+                width: 24px;
+                height: 24px;
             }
-        }
-        
-        /* Drag and Drop Styles */
-        .draggable-plant {
-            cursor: grab;
-            user-select: none;
-        }
-        
-        .draggable-plant:active {
-            cursor: grabbing;
-        }
-        
-        .dragging {
-            opacity: 0.5;
         }
         
         /* Stats Dashboard */
@@ -743,12 +686,6 @@
             background: linear-gradient(90deg, var(--forest-light) 0%, var(--forest-green) 100%);
             transition: width 0.5s ease;
         }
-        
-        /* Emoji Icons */
-        .emoji-icon {
-            font-size: 1.5rem;
-            margin-right: 0.5rem;
-        }
 
         /* Filter buttons */
         .filter-buttons {
@@ -774,12 +711,13 @@
             color: white;
         }
 
-        /* Tool selection in garden view */
+        /* Garden tool selection */
         .garden-tools {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
             margin-bottom: 1rem;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .tool-btn {
@@ -789,12 +727,21 @@
             border-radius: 10px;
             cursor: pointer;
             font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
             transition: all 0.2s;
         }
 
         .tool-btn:hover, .tool-btn.active {
             background: var(--forest-green);
             color: white;
+        }
+
+        .tool-btn.danger {
+            border-color: #c62828;
+        }
+        
+        .tool-btn.danger:hover {
+            background: #c62828;
         }
 
         .plant-select {
@@ -804,6 +751,62 @@
             font-family: 'Quicksand', sans-serif;
             background: var(--cream);
             min-width: 200px;
+            font-size: 0.9rem;
+        }
+
+        .selected-plant-indicator {
+            padding: 0.5rem 1rem;
+            background: var(--honey-light);
+            border-radius: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .grid-info {
+            font-size: 0.85rem;
+            color: var(--bark-brown);
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: var(--honey-light);
+            border-radius: 8px;
+        }
+
+        .row-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-right: 5px;
+            padding-top: 25px;
+        }
+
+        .row-label {
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: 0.6rem;
+            color: white;
+            padding-right: 3px;
+        }
+
+        .col-labels {
+            display: flex;
+            gap: 3px;
+            padding-left: 30px;
+            padding-bottom: 5px;
+        }
+
+        .col-label {
+            width: 28px;
+            text-align: center;
+            font-size: 0.6rem;
+            color: white;
+        }
+
+        .garden-wrapper {
+            display: flex;
         }
     </style>
 </head>
@@ -814,8 +817,8 @@
         const { useState, useEffect, useCallback, useMemo } = React;
         
         // ========== DATA ==========
-        const LAST_FROST_DATE = new Date(2025, 4, 4); // May 4, 2025
-        const FIRST_FROST_DATE = new Date(2025, 9, 11); // October 11, 2025
+        const LAST_FROST_DATE = new Date(2026, 4, 4); // May 4, 2026
+        const FIRST_FROST_DATE = new Date(2026, 9, 11); // October 11, 2026
         const TODAY = new Date();
         
         const CHARACTERS = {
@@ -967,7 +970,7 @@
         
         // Progress Bar Component
         const ProgressBar = ({ label, value, max }) => {
-            const percentage = Math.round((value / max) * 100);
+            const percentage = max > 0 ? Math.round((value / max) * 100) : 0;
             return (
                 <div className="progress-bar-container">
                     <div className="progress-bar-label">
@@ -989,7 +992,7 @@
             const currentStatus = STATUS_OPTIONS.find(s => s.id === plant.status) || STATUS_OPTIONS[0];
             
             return (
-                <div className="plant-card" draggable="true" data-plant-id={plant.id}>
+                <div className="plant-card">
                     <div className="plant-card-header">
                         <div>
                             <div className="plant-name">
@@ -1036,7 +1039,7 @@
                             className="plant-select"
                             value={plant.status || 'not-planted'}
                             onChange={(e) => onStatusChange(plant.id, e.target.value)}
-                            style={{ padding: '0.4rem', borderRadius: '10px', border: '2px solid #E8A838', fontSize: '0.75rem' }}
+                            style={{ padding: '0.4rem', borderRadius: '10px', border: '2px solid #E8A838', fontSize: '0.75rem', minWidth: '120px' }}
                         >
                             {STATUS_OPTIONS.map(status => (
                                 <option key={status.id} value={status.id}>{status.label}</option>
@@ -1053,7 +1056,7 @@
         // Timeline View Component
         const TimelineView = ({ plants }) => {
             const weeks = [];
-            const startDate = new Date(2025, 0, 13); // Start from mid-January
+            const startDate = new Date(2026, 0, 12); // Start from mid-January 2026
             
             for (let i = 0; i < 30; i++) {
                 const weekStart = addWeeks(startDate, i);
@@ -1123,47 +1126,86 @@
             );
         };
         
-        // Garden Layout Component
-        const GardenLayout = ({ plants, gardenGrid, setGardenGrid, selectedPlant, setSelectedPlant }) => {
-            const GRID_COLS = 60; // 30 feet * 2 (6" squares)
-            const GRID_ROWS = 120; // 60 feet * 2
+        // Garden Layout Component - FIXED VERSION
+        const GardenLayout = ({ plants, gardenGrid, setGardenGrid, selectedPlant, setSelectedPlant, addNotification }) => {
+            // Simplified grid: 30 cols (1 foot each) x 20 rows shown (can represent sections)
+            const GRID_COLS = 30; // 30 feet wide
+            const GRID_ROWS = 20; // Show 20 feet at a time (scrollable concept)
             
             const handleCellClick = (row, col) => {
-                if (!selectedPlant) return;
-                
-                const newGrid = [...gardenGrid];
                 const cellKey = `${row}-${col}`;
+                
+                // If no plant selected, check if we're clicking an occupied cell to remove
+                if (!selectedPlant) {
+                    if (gardenGrid[cellKey]) {
+                        // Remove plant from cell
+                        const newGrid = { ...gardenGrid };
+                        const removedPlant = newGrid[cellKey];
+                        delete newGrid[cellKey];
+                        setGardenGrid(newGrid);
+                        addNotification({
+                            icon: '🗑️',
+                            title: 'Plant Removed',
+                            message: `Removed ${removedPlant.name} from row ${row + 1}, col ${col + 1}`
+                        });
+                    }
+                    return;
+                }
+                
+                // Toggle: if same plant exists, remove it; otherwise place new plant
+                const newGrid = { ...gardenGrid };
                 
                 if (newGrid[cellKey] && newGrid[cellKey].id === selectedPlant.id) {
                     delete newGrid[cellKey];
+                    addNotification({
+                        icon: '🗑️',
+                        title: 'Plant Removed',
+                        message: `Removed ${selectedPlant.name}`
+                    });
                 } else {
-                    newGrid[cellKey] = selectedPlant;
+                    newGrid[cellKey] = { ...selectedPlant };
+                    addNotification({
+                        icon: '🌱',
+                        title: 'Plant Placed',
+                        message: `${selectedPlant.name} at row ${row + 1}, col ${col + 1}`
+                    });
                 }
                 
                 setGardenGrid(newGrid);
             };
             
-            const getPlantedPlants = () => {
-                const planted = {};
+            const getPlantedCounts = () => {
+                const counts = {};
                 Object.values(gardenGrid).forEach(plant => {
-                    if (plant) {
-                        planted[plant.id] = (planted[plant.id] || 0) + 1;
+                    if (plant && plant.id) {
+                        counts[plant.id] = (counts[plant.id] || 0) + 1;
                     }
                 });
-                return planted;
+                return counts;
             };
             
-            const plantedCounts = getPlantedPlants();
+            const plantedCounts = getPlantedCounts();
+            const totalPlanted = Object.keys(gardenGrid).length;
+            
+            const clearGrid = () => {
+                if (window.confirm('Are you sure you want to clear the entire garden layout?')) {
+                    setGardenGrid({});
+                    addNotification({
+                        icon: '🗑️',
+                        title: 'Garden Cleared',
+                        message: 'All plants have been removed from the layout'
+                    });
+                }
+            };
             
             return (
                 <div className="card">
                     <h2 className="card-title">🗺️ Rabbit's Garden Map (30' × 60')</h2>
                     <div className="character-quote">
-                        <span className="character-name">🐰 Rabbit says:</span> "A proper garden requires proper planning! Each square is 6 inches. Click to place plants."
+                        <span className="character-name">🐰 Rabbit says:</span> "A proper garden requires proper planning! Select a plant, then click squares to place it. Click again to remove. Each square = 1 foot."
                     </div>
                     
                     <div className="garden-tools">
-                        <label style={{ fontWeight: 600, marginRight: '0.5rem' }}>Select Plant:</label>
                         <select 
                             className="plant-select"
                             value={selectedPlant?.id || ''}
@@ -1172,96 +1214,136 @@
                                 setSelectedPlant(plant || null);
                             }}
                         >
-                            <option value="">-- Select a plant --</option>
+                            <option value="">-- Select a plant to place --</option>
                             {plants.filter(p => p.type !== 'perennial').map(plant => (
                                 <option key={plant.id} value={plant.id}>
                                     {plant.name} ({plant.spacing}" spacing)
                                 </option>
                             ))}
                         </select>
-                        <button 
-                            className="tool-btn"
-                            onClick={() => setGardenGrid({})}
-                        >
+                        
+                        {selectedPlant && (
+                            <div className="selected-plant-indicator">
+                                <span style={{ 
+                                    width: '16px', 
+                                    height: '16px', 
+                                    background: selectedPlant.color, 
+                                    borderRadius: '4px',
+                                    display: 'inline-block'
+                                }}></span>
+                                Placing: {selectedPlant.name}
+                            </div>
+                        )}
+                        
+                        <button className="tool-btn danger" onClick={clearGrid}>
                             🗑️ Clear All
                         </button>
                     </div>
                     
-                    <div className="layout-legend">
-                        {plants.filter(p => plantedCounts[p.id]).map(plant => (
-                            <div key={plant.id} className="legend-item">
-                                <span className="legend-color" style={{ background: plant.color }}></span>
-                                <span>{plant.name.split(' ')[0]} ({plantedCounts[plant.id] || 0})</span>
-                            </div>
-                        ))}
-                    </div>
+                    {Object.keys(plantedCounts).length > 0 && (
+                        <div className="layout-legend">
+                            <strong style={{ marginRight: '0.5rem' }}>Planted ({totalPlanted} cells):</strong>
+                            {plants.filter(p => plantedCounts[p.id]).map(plant => (
+                                <div key={plant.id} className="legend-item">
+                                    <span className="legend-color" style={{ background: plant.color }}></span>
+                                    <span>{plant.name.split(' ')[0]} ({plantedCounts[plant.id]})</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     
                     <div className="garden-layout-container">
-                        <div 
-                            className="garden-grid"
-                            style={{ 
-                                gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
-                                gridTemplateRows: `repeat(${Math.min(GRID_ROWS, 40)}, 1fr)`
-                            }}
-                        >
-                            {Array.from({ length: Math.min(GRID_ROWS, 40) * GRID_COLS }).map((_, idx) => {
-                                const row = Math.floor(idx / GRID_COLS);
-                                const col = idx % GRID_COLS;
-                                const cellKey = `${row}-${col}`;
-                                const cellPlant = gardenGrid[cellKey];
-                                
-                                return (
-                                    <div
-                                        key={cellKey}
-                                        className={`garden-cell ${cellPlant ? 'occupied' : ''} ${selectedPlant ? 'selectable' : ''}`}
-                                        style={cellPlant ? { backgroundColor: cellPlant.color } : {}}
-                                        onClick={() => handleCellClick(row, col)}
-                                        title={cellPlant ? cellPlant.name : `Row ${row + 1}, Col ${col + 1}`}
-                                    >
-                                        {cellPlant && cellPlant.name.charAt(0)}
-                                    </div>
-                                );
-                            })}
+                        {/* Column labels */}
+                        <div className="col-labels">
+                            {Array.from({ length: GRID_COLS }).map((_, col) => (
+                                <div key={col} className="col-label">{col + 1}'</div>
+                            ))}
+                        </div>
+                        
+                        <div className="garden-wrapper">
+                            {/* Row labels */}
+                            <div className="row-labels">
+                                {Array.from({ length: GRID_ROWS }).map((_, row) => (
+                                    <div key={row} className="row-label">{row + 1}'</div>
+                                ))}
+                            </div>
+                            
+                            {/* Grid */}
+                            <div 
+                                className="garden-grid"
+                                style={{ 
+                                    gridTemplateColumns: `repeat(${GRID_COLS}, 28px)`,
+                                    gridTemplateRows: `repeat(${GRID_ROWS}, 28px)`
+                                }}
+                            >
+                                {Array.from({ length: GRID_ROWS * GRID_COLS }).map((_, idx) => {
+                                    const row = Math.floor(idx / GRID_COLS);
+                                    const col = idx % GRID_COLS;
+                                    const cellKey = `${row}-${col}`;
+                                    const cellPlant = gardenGrid[cellKey];
+                                    
+                                    return (
+                                        <div
+                                            key={cellKey}
+                                            className={`garden-cell ${cellPlant ? 'occupied' : ''} ${selectedPlant ? 'selected-plant-cell' : ''}`}
+                                            style={cellPlant ? { backgroundColor: cellPlant.color } : {}}
+                                            onClick={() => handleCellClick(row, col)}
+                                            title={cellPlant ? `${cellPlant.name} - Click to remove` : `Empty (${row + 1}', ${col + 1}') - ${selectedPlant ? 'Click to place ' + selectedPlant.name : 'Select a plant first'}`}
+                                        >
+                                            {cellPlant && cellPlant.name.substring(0, 2)}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                     
-                    <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#5D4037' }}>
-                        💡 Tip: Showing first 20 feet of garden (scrollable). Each cell = 6" × 6". 
-                        Click cells to place selected plant. Click occupied cell to remove.
-                    </p>
+                    <div className="grid-info">
+                        💡 <strong>Tips:</strong> Each cell = 1 square foot. Select a plant from dropdown, then click to place. 
+                        Click an occupied cell to remove that plant. With no plant selected, clicking removes any plant.
+                        Grid shows 30' × 20' section. Plant spacing noted in dropdown (e.g., tomatoes need 24" = 2 feet between plants).
+                    </div>
                 </div>
             );
         };
         
         // Task Checklist Component
-        const TaskChecklist = ({ tasks, toggleTask }) => (
-            <div className="card">
-                <h2 className="card-title">✅ Piglet's To-Do List</h2>
-                <div className="character-quote">
-                    <span className="character-name">🐷 Piglet says:</span> "It's so much friendlier with tasks to check off!"
+        const TaskChecklist = ({ tasks, toggleTask }) => {
+            const sortedTasks = [...tasks].sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                const priorityOrder = { high: 0, medium: 1, low: 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+            
+            return (
+                <div className="card">
+                    <h2 className="card-title">✅ Piglet's To-Do List</h2>
+                    <div className="character-quote">
+                        <span className="character-name">🐷 Piglet says:</span> "It's so much friendlier with tasks to check off!"
+                    </div>
+                    
+                    <ul className="task-list">
+                        {sortedTasks.map(task => (
+                            <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                                <div 
+                                    className={`task-checkbox ${task.completed ? 'checked' : ''}`}
+                                    onClick={() => toggleTask(task.id)}
+                                >
+                                    {task.completed && '✓'}
+                                </div>
+                                <div className="task-content">
+                                    <div className="task-text">{task.text}</div>
+                                    <div className="task-date">{task.date}</div>
+                                </div>
+                                <span className={`task-priority priority-${task.priority}`}>
+                                    {task.priority}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
-                
-                <ul className="task-list">
-                    {tasks.map(task => (
-                        <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                            <div 
-                                className={`task-checkbox ${task.completed ? 'checked' : ''}`}
-                                onClick={() => toggleTask(task.id)}
-                            >
-                                {task.completed && '✓'}
-                            </div>
-                            <div className="task-content">
-                                <div className="task-text">{task.text}</div>
-                                <div className="task-date">{task.date}</div>
-                            </div>
-                            <span className={`task-priority priority-${task.priority}`}>
-                                {task.priority}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        );
+            );
+        };
         
         // Plants View Component
         const PlantsView = ({ plants, onStatusChange, onSetReminder, filter, setFilter }) => {
@@ -1319,6 +1401,22 @@
             const [notifications, setNotifications] = useState([]);
             const [filter, setFilter] = useState('all');
             
+            const addNotification = useCallback((notification) => {
+                const id = Date.now();
+                setNotifications(prev => [...prev, { ...notification, id }]);
+                
+                setTimeout(() => {
+                    setNotifications(prev => prev.filter(n => n.id !== id));
+                }, 4000);
+                
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(notification.title, {
+                        body: notification.message,
+                        icon: '🌻'
+                    });
+                }
+            }, []);
+            
             // Load saved data from localStorage
             useEffect(() => {
                 const savedPlants = localStorage.getItem('hundredAcreGarden_plants');
@@ -1334,21 +1432,22 @@
                 if (savedTasks) {
                     setTasks(JSON.parse(savedTasks));
                 } else {
-                    // Generate initial tasks based on plant schedule
                     const initialTasks = generateTasks(INITIAL_PLANTS);
                     setTasks(initialTasks);
                 }
                 
                 if (savedGrid) {
-                    setGardenGrid(JSON.parse(savedGrid));
+                    try {
+                        setGardenGrid(JSON.parse(savedGrid));
+                    } catch (e) {
+                        setGardenGrid({});
+                    }
                 }
                 
-                // Check for notifications permission
                 if ('Notification' in window && Notification.permission === 'default') {
                     Notification.requestPermission();
                 }
                 
-                // Show welcome notification
                 addNotification({
                     icon: '🍯',
                     title: 'Welcome to Hundred Acre Garden!',
@@ -1377,7 +1476,6 @@
                 const taskList = [];
                 let taskId = 1;
                 
-                // Sort plants by planting date
                 const sortedPlants = [...plantList].sort((a, b) => {
                     const dateA = getPlantingDate(a);
                     const dateB = getPlantingDate(b);
@@ -1388,7 +1486,6 @@
                     const plantDate = getPlantingDate(plant);
                     const transplantDate = getTransplantDate(plant);
                     
-                    // Add planting task
                     taskList.push({
                         id: taskId++,
                         text: plant.directSow 
@@ -1400,7 +1497,6 @@
                         completed: false
                     });
                     
-                    // Add transplant task if applicable
                     if (transplantDate) {
                         taskList.push({
                             id: taskId++,
@@ -1416,24 +1512,6 @@
                 return taskList;
             };
             
-            const addNotification = (notification) => {
-                const id = Date.now();
-                setNotifications(prev => [...prev, { ...notification, id }]);
-                
-                // Auto-remove after 5 seconds
-                setTimeout(() => {
-                    setNotifications(prev => prev.filter(n => n.id !== id));
-                }, 5000);
-                
-                // Also show browser notification if permitted
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification(notification.title, {
-                        body: notification.message,
-                        icon: '🌻'
-                    });
-                }
-            };
-            
             const handleStatusChange = (plantId, newStatus) => {
                 setPlants(prev => prev.map(p => 
                     p.id === plantId ? { ...p, status: newStatus } : p
@@ -1445,15 +1523,13 @@
                 addNotification({
                     icon: '🌱',
                     title: 'Plant Status Updated',
-                    message: `${plant.name} is now ${statusLabel}`
+                    message: `${plant?.name} is now ${statusLabel}`
                 });
             };
             
             const handleSetReminder = (plant) => {
                 const plantDate = getPlantingDate(plant);
-                const transplantDate = getTransplantDate(plant);
                 
-                // Create calendar event
                 const title = encodeURIComponent(`Garden: ${plant.directSow ? 'Sow' : 'Start'} ${plant.name}`);
                 const details = encodeURIComponent(plant.notes || '');
                 const startDate = plantDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -1546,8 +1622,8 @@
                                 </div>
                                 
                                 <div className="card">
-                                    <h2 className="card-title">🚨 Coming Up This Week</h2>
-                                    {tasks.filter(t => !t.completed && t.priority === 'high').slice(0, 5).map(task => (
+                                    <h2 className="card-title">🚨 Coming Up Soon</h2>
+                                    {tasks.filter(t => !t.completed && (t.priority === 'high' || t.priority === 'medium')).slice(0, 6).map(task => (
                                         <div key={task.id} className="task-item">
                                             <div 
                                                 className={`task-checkbox ${task.completed ? 'checked' : ''}`}
@@ -1565,7 +1641,7 @@
                                         </div>
                                     ))}
                                     {tasks.filter(t => !t.completed && t.priority === 'high').length === 0 && (
-                                        <p style={{ color: '#5D4037', fontStyle: 'italic' }}>
+                                        <p style={{ color: '#5D4037', fontStyle: 'italic', padding: '0.5rem' }}>
                                             🎉 No urgent tasks right now! Check the timeline for what's coming up.
                                         </p>
                                     )}
@@ -1613,6 +1689,7 @@
                                 setGardenGrid={setGardenGrid}
                                 selectedPlant={selectedPlant}
                                 setSelectedPlant={setSelectedPlant}
+                                addNotification={addNotification}
                             />
                         )}
                         
