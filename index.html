@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hundred Acre Garden - Garden Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Quicksand:wght@400;500;600;700&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root {
+            --honey-gold: #E8A838;
+            --honey-light: #F5D78E;
+            --forest-green: #2D5A27;
+            --forest-light: #4A7C42;
+            --sky-blue: #87CEEB;
+            --sky-light: #B8E0F0;
+            --bark-brown: #5D4037;
+            --bark-light: #8D6E63;
+            --cream: #FFF8E7;
+            --parchment: #F5ECD7;
+            --soil-brown: #3E2723;
+            --piglet-pink: #FFB6C1;
+            --eeyore-purple: #9B8AA5;
+            --tigger-orange: #FF7043;
+            --rabbit-tan: #D4A574;
+            --owl-gray: #78909C;
+            
+            --status-not-planted: #8D6E63;
+            --status-germinating: #A5D6A7;
+            --status-growing: #66BB6A;
+            --status-hardening: #FFF176;
+            --status-transplanted: #42A5F5;
+            --status-flowering: #F48FB1;
+            --status-harvesting: #FF7043;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(180deg, var(--sky-light) 0%, var(--sky-blue) 30%, var(--forest-light) 70%, var(--forest-green) 100%);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--honey-gold) 0%, var(--honey-light) 100%);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 20 L30 18 L25 20 Z' fill='%23E8A838' opacity='0.3'/%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+        
+        .header h1 {
+            font-family: 'Caveat', cursive;
+            font-size: 3.5rem;
+            color: var(--bark-brown);
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header .subtitle {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            color: var(--forest-green);
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header .date-display {
+            font-size: 0.9rem;
+            color: var(--bark-brown);
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--parchment);
+            border-bottom: 3px solid var(--honey-gold);
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: var(--cream);
+            border-radius: 20px 20px 0 0;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            color: var(--bark-brown);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .nav-tab:hover {
+            background: var(--honey-light);
+            transform: translateY(-2px);
+        }
+        
+        .nav-tab.active {
+            background: var(--honey-gold);
+            color: white;
+            border-color: var(--bark-brown);
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--cream);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            border: 3px solid var(--honey-gold);
+        }
+        
+        .card-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--forest-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Timeline Styles */
+        .timeline-container {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+        
+        .timeline {
+            display: flex;
+            gap: 0.5rem;
+            min-width: max-content;
+            padding: 1rem;
+        }
+        
+        .timeline-week {
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .timeline-week-header {
+            background: var(--forest-green);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 10px 10px 0 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .timeline-week-header.current {
+            background: var(--honey-gold);
+            color: var(--bark-brown);
+        }
+        
+        .timeline-week-content {
+            background: var(--parchment);
+            padding: 0.5rem;
+            border-radius: 0 0 10px 10px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .timeline-task {
+            font-size: 0.7rem;
+            padding: 0.3rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .timeline-task:hover {
+            transform: scale(1.05);
+        }
+        
+        .timeline-task.start-indoor {
+            background: var(--status-germinating);
+        }
+        
+        .timeline-task.transplant {
+            background: var(--status-transplanted);
+            color: white;
+        }
+        
+        .timeline-task.direct-sow {
+            background: var(--status-growing);
+            color: white;
+        }
+        
+        .timeline-task.harvest {
+            background: var(--status-harvesting);
+            color: white;
+        }
+        
+        /* Plant Cards Grid */
+        .plants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        
+        .plant-card {
+            background: var(--parchment);
+            border-radius: 15px;
+            padding: 1rem;
+            border: 2px solid var(--honey-light);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-color: var(--honey-gold);
+        }
+        
+        .plant-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .plant-name {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            color: var(--forest-green);
+            font-weight: 600;
+        }
+        
+        .plant-character {
+            font-size: 0.8rem;
+            color: var(--bark-light);
+            font-style: italic;
+        }
+        
+        .plant-status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-not-planted { background: var(--status-not-planted); color: white; }
+        .status-germinating { background: var(--status-germinating); color: var(--bark-brown); }
+        .status-growing { background: var(--status-growing); color: white; }
+        .status-hardening { background: var(--status-hardening); color: var(--bark-brown); }
+        .status-transplanted { background: var(--status-transplanted); color: white; }
+        .status-flowering { background: var(--status-flowering); color: var(--bark-brown); }
+        .status-harvesting { background: var(--status-harvesting); color: white; }
+        
+        .plant-info {
+            font-size: 0.85rem;
+            color: var(--bark-brown);
+            margin: 0.5rem 0;
+        }
+        
+        .plant-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            border-bottom: 1px dashed var(--honey-light);
+        }
+        
+        .plant-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .plant-action-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+        }
+        
+        .plant-action-btn.primary {
+            background: var(--forest-green);
+            color: white;
+        }
+        
+        .plant-action-btn.secondary {
+            background: var(--honey-gold);
+            color: var(--bark-brown);
+        }
+        
+        .plant-action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Garden Layout */
+        .garden-layout-container {
+            overflow: auto;
+            padding: 1rem;
+            background: var(--soil-brown);
+            border-radius: 15px;
+            max-height: 600px;
+        }
+        
+        .garden-grid {
+            display: grid;
+            gap: 2px;
+            background: var(--bark-brown);
+            padding: 10px;
+            border-radius: 10px;
+            width: fit-content;
+            min-width: 100%;
+        }
+        
+        .garden-cell {
+            width: 40px;
+            height: 40px;
+            background: #654321;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.6rem;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        
+        .garden-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+        
+        .garden-cell.occupied {
+            background: var(--forest-green);
+        }
+        
+        .garden-cell.dragging-over {
+            background: var(--honey-gold);
+            transform: scale(1.15);
+        }
+        
+        .garden-cell.selected {
+            outline: 3px solid var(--honey-gold);
+        }
+        
+        /* Layout Legend */
+        .layout-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--parchment);
+            border-radius: 10px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        /* Task Checklist */
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--parchment);
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--honey-gold);
+            transition: all 0.3s;
+        }
+        
+        .task-item.completed {
+            opacity: 0.6;
+            border-left-color: var(--forest-green);
+        }
+        
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+        }
+        
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--forest-green);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .task-checkbox.checked {
+            background: var(--forest-green);
+            color: white;
+        }
+        
+        .task-content {
+            flex: 1;
+        }
+        
+        .task-text {
+            font-weight: 600;
+            color: var(--bark-brown);
+        }
+        
+        .task-date {
+            font-size: 0.8rem;
+            color: var(--bark-light);
+        }
+        
+        .task-priority {
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            background: var(--tigger-orange);
+            color: white;
+        }
+        
+        .priority-medium {
+            background: var(--honey-gold);
+            color: var(--bark-brown);
+        }
+        
+        .priority-low {
+            background: var(--sky-blue);
+            color: var(--bark-brown);
+        }
+        
+        /* Notifications Panel */
+        .notifications-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .notification {
+            background: var(--cream);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--honey-gold);
+            animation: slideIn 0.3s ease;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            color: var(--forest-green);
+        }
+        
+        .notification-message {
+            font-size: 0.85rem;
+            color: var(--bark-brown);
+            margin-top: 0.25rem;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--bark-light);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+        
+        .modal {
+            background: var(--cream);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 4px solid var(--honey-gold);
+        }
+        
+        .modal-title {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--forest-green);
+            margin-bottom: 1rem;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bark-light);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        /* Status Legend */
+        .status-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--parchment);
+            border-radius: 10px;
+        }
+        
+        .status-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* Character Quote Box */
+        .character-quote {
+            background: linear-gradient(135deg, var(--honey-light) 0%, var(--cream) 100%);
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 2px dashed var(--honey-gold);
+            font-style: italic;
+            color: var(--bark-brown);
+        }
+        
+        .character-quote .character-name {
+            font-weight: 700;
+            color: var(--forest-green);
+            font-style: normal;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-tabs {
+                gap: 0.25rem;
+            }
+            
+            .nav-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .garden-cell {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        
+        /* Drag and Drop Styles */
+        .draggable-plant {
+            cursor: grab;
+            user-select: none;
+        }
+        
+        .draggable-plant:active {
+            cursor: grabbing;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+        }
+        
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--parchment) 0%, var(--cream) 100%);
+            border-radius: 15px;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid var(--honey-light);
+        }
+        
+        .stat-number {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            color: var(--forest-green);
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--bark-brown);
+        }
+        
+        /* Progress Bar */
+        .progress-bar-container {
+            background: var(--parchment);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--bark-brown);
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: var(--cream);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--honey-light);
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--forest-light) 0%, var(--forest-green) 100%);
+            transition: width 0.5s ease;
+        }
+        
+        /* Emoji Icons */
+        .emoji-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Filter buttons */
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--honey-gold);
+            background: var(--cream);
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--honey-gold);
+            color: white;
+        }
+
+        /* Tool selection in garden view */
+        .garden-tools {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--forest-green);
+            background: var(--cream);
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover, .tool-btn.active {
+            background: var(--forest-green);
+            color: white;
+        }
+
+        .plant-select {
+            padding: 0.5rem;
+            border-radius: 10px;
+            border: 2px solid var(--honey-gold);
+            font-family: 'Quicksand', sans-serif;
+            background: var(--cream);
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useMemo } = React;
+        
+        // ========== DATA ==========
+        const LAST_FROST_DATE = new Date(2025, 4, 4); // May 4, 2025
+        const FIRST_FROST_DATE = new Date(2025, 9, 11); // October 11, 2025
+        const TODAY = new Date();
+        
+        const CHARACTERS = {
+            pooh: { name: "Pooh", emoji: "🍯", quote: "A little consideration, a little thought for others, makes all the difference." },
+            piglet: { name: "Piglet", emoji: "🐷", quote: "It's so much more friendly with two." },
+            tigger: { name: "Tigger", emoji: "🐯", quote: "The wonderful thing about Tiggers is I'm the only one!" },
+            rabbit: { name: "Rabbit", emoji: "🐰", quote: "Why does it always have to be carrots?" },
+            eeyore: { name: "Eeyore", emoji: "🫏", quote: "We can't all, and some of us don't." },
+            owl: { name: "Owl", emoji: "🦉", quote: "A little learning is a dangerous thing." },
+            kanga: { name: "Kanga", emoji: "🦘", quote: "We'll take care of you, dear." },
+            roo: { name: "Roo", emoji: "🦘", quote: "Look what I can do!" },
+            christopher: { name: "Christopher Robin", emoji: "👦", quote: "You're braver than you believe." }
+        };
+        
+        const STATUS_OPTIONS = [
+            { id: 'not-planted', label: 'Not Planted', color: '#8D6E63' },
+            { id: 'germinating', label: 'Germinating', color: '#A5D6A7' },
+            { id: 'growing', label: 'Growing', color: '#66BB6A' },
+            { id: 'hardening', label: 'Hardening Off', color: '#FFF176' },
+            { id: 'transplanted', label: 'In Garden', color: '#42A5F5' },
+            { id: 'flowering', label: 'Flowering', color: '#F48FB1' },
+            { id: 'harvesting', label: 'Harvesting', color: '#FF7043' }
+        ];
+        
+        const INITIAL_PLANTS = [
+            // Tomatoes
+            { id: 1, name: "San Marzano Tomato", character: "pooh", type: "tomato", startIndoors: -8, transplant: 2, daysToHarvest: 80, spacing: 24, notes: "Classic paste tomato for sauce. Indeterminate.", color: "#E53935" },
+            { id: 2, name: "Purple Bumble Bee Tomato", character: "piglet", type: "tomato", startIndoors: -8, transplant: 2, daysToHarvest: 70, spacing: 24, notes: "Beautiful striped cherry tomato. Sweet flavor.", color: "#7B1FA2" },
+            { id: 3, name: "Druzba Tomato", character: "eeyore", type: "tomato", startIndoors: -8, transplant: 2, daysToHarvest: 80, spacing: 24, notes: "Bulgarian heirloom. Rich, complex flavor.", color: "#C62828" },
+            { id: 4, name: "Boxcar Willie Tomato", character: "tigger", type: "tomato", startIndoors: -8, transplant: 2, daysToHarvest: 80, spacing: 24, notes: "Classic red slicer. Reliable producer.", color: "#D32F2F" },
+            { id: 5, name: "Black Sea Man Tomato", character: "owl", type: "tomato", startIndoors: -8, transplant: 2, daysToHarvest: 80, spacing: 24, notes: "Russian heirloom with complex, smoky flavor.", color: "#4E342E" },
+            { id: 6, name: "Azoychka Tomato", character: "kanga", type: "tomato", startIndoors: -8, transplant: 2, daysToHarvest: 70, spacing: 24, notes: "Bright yellow Russian heirloom. Citrusy-sweet.", color: "#FFC107" },
+            
+            // Tomatillo
+            { id: 7, name: "Rio Grande Verde Tomatillo", character: "rabbit", type: "tomatillo", startIndoors: -8, transplant: 2, daysToHarvest: 75, spacing: 36, notes: "⚠️ NEED 2+ PLANTS for cross-pollination!", color: "#7CB342" },
+            
+            // Pepper
+            { id: 8, name: "Big Red Bell Pepper", character: "tigger", type: "pepper", startIndoors: -10, transplant: 2, daysToHarvest: 75, spacing: 18, notes: "Classic sweet bell. Wait for red for sweetest flavor.", color: "#F44336" },
+            
+            // Brassicas
+            { id: 9, name: "Catskill Brussels Sprout", character: "christopher", type: "brassica", startIndoors: -6, transplant: -1, daysToHarvest: 100, spacing: 24, notes: "Best flavor after frost. Plant for fall harvest.", color: "#558B2F", fallCrop: true },
+            { id: 10, name: "White Vienna Kohlrabi", character: "owl", type: "brassica", startIndoors: -6, transplant: -3, daysToHarvest: 55, spacing: 6, notes: "Quick cool-season crop. Harvest at 2-3\" diameter.", color: "#C5E1A5" },
+            { id: 11, name: "Broccoli Rabe - Spring Rapini", character: "rabbit", type: "brassica", startIndoors: -4, transplant: -2, daysToHarvest: 45, spacing: 6, notes: "Harvest florets before flowers open. Quick crop!", color: "#689F38" },
+            
+            // Cucurbits
+            { id: 12, name: "Luffa Gourd", character: "roo", type: "cucurbit", startIndoors: -6, transplant: 3, daysToHarvest: 150, spacing: 36, notes: "⚠️ CHALLENGING in Zone 6! Needs 150+ days. Use black plastic mulch.", color: "#8BC34A" },
+            { id: 13, name: "Marketmore 76 Cucumber", character: "piglet", type: "cucurbit", directSow: 1, daysToHarvest: 65, spacing: 12, notes: "Disease-resistant slicer. Trellis for straight fruit.", color: "#4CAF50" },
+            
+            // Corn
+            { id: 14, name: "Peaches and Cream Corn", character: "pooh", type: "corn", directSow: 1, daysToHarvest: 83, spacing: 10, notes: "Plant in blocks of 4+ rows for pollination! Sweet bicolor.", color: "#FFE082" },
+            
+            // Root Vegetables (Direct Sow)
+            { id: 15, name: "Danvers 126 Carrot", character: "rabbit", type: "root", directSow: -2, daysToHarvest: 75, spacing: 2, notes: "Heat-tolerant. Good for heavy soil. Succession plant!", color: "#FF9800" },
+            { id: 16, name: "Rainbow Mix Carrot", character: "roo", type: "root", directSow: -2, daysToHarvest: 70, spacing: 2, notes: "Purple, yellow, orange, white varieties. Fun!", color: "#FF5722" },
+            { id: 17, name: "Assorted Beet Mix", character: "eeyore", type: "root", directSow: -2, daysToHarvest: 55, spacing: 4, notes: "Eat greens AND roots. Thin to 4\" apart.", color: "#880E4F" },
+            { id: 18, name: "Sparkler White Tip Radish", character: "tigger", type: "root", directSow: -4, daysToHarvest: 25, spacing: 1, notes: "Super fast! Plant every 2 weeks for continuous harvest.", color: "#E91E63" },
+            
+            // Alliums
+            { id: 19, name: "Cipollini Onion", character: "owl", type: "allium", startIndoors: -12, transplant: -2, daysToHarvest: 100, spacing: 4, notes: "Flat Italian onion. Great for roasting.", color: "#FFECB3" },
+            
+            // Herbs
+            { id: 20, name: "Genovese Basil", character: "kanga", type: "herb", startIndoors: -6, transplant: 2, daysToHarvest: 60, spacing: 12, notes: "Classic pesto basil. Pinch flowers for bushier plants.", color: "#2E7D32" },
+            
+            // Asparagus (Perennial)
+            { id: 21, name: "UC-157 Asparagus", character: "christopher", type: "perennial", startIndoors: -12, transplant: -2, daysToHarvest: 730, spacing: 18, notes: "⚠️ PERENNIAL - Don't harvest for 2-3 YEARS! Dedicated bed needed.", color: "#43A047" }
+        ];
+        
+        // ========== UTILITY FUNCTIONS ==========
+        const getWeeksDiff = (date1, date2) => {
+            const diffTime = date2 - date1;
+            return Math.floor(diffTime / (7 * 24 * 60 * 60 * 1000));
+        };
+        
+        const addWeeks = (date, weeks) => {
+            const result = new Date(date);
+            result.setDate(result.getDate() + weeks * 7);
+            return result;
+        };
+        
+        const formatDate = (date) => {
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        };
+        
+        const getPlantingDate = (plant) => {
+            if (plant.directSow) {
+                return addWeeks(LAST_FROST_DATE, plant.directSow);
+            }
+            return addWeeks(LAST_FROST_DATE, plant.startIndoors);
+        };
+        
+        const getTransplantDate = (plant) => {
+            if (plant.directSow) return null;
+            return addWeeks(LAST_FROST_DATE, plant.transplant);
+        };
+        
+        // ========== COMPONENTS ==========
+        
+        // Notification Component
+        const Notification = ({ notification, onClose }) => (
+            <div className="notification">
+                <span className="notification-icon">{notification.icon}</span>
+                <div className="notification-content">
+                    <div className="notification-title">{notification.title}</div>
+                    <div className="notification-message">{notification.message}</div>
+                </div>
+                <button className="notification-close" onClick={onClose}>×</button>
+            </div>
+        );
+        
+        // Status Legend Component
+        const StatusLegend = () => (
+            <div className="status-legend">
+                {STATUS_OPTIONS.map(status => (
+                    <div key={status.id} className="status-legend-item">
+                        <span className="status-dot" style={{ background: status.color }}></span>
+                        <span>{status.label}</span>
+                    </div>
+                ))}
+            </div>
+        );
+        
+        // Stats Dashboard Component
+        const StatsDashboard = ({ plants, tasks }) => {
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const plantedCount = plants.filter(p => p.status !== 'not-planted').length;
+            const harvestingCount = plants.filter(p => p.status === 'harvesting').length;
+            
+            return (
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <div className="stat-number">{plants.length}</div>
+                        <div className="stat-label">Total Varieties</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-number">{plantedCount}</div>
+                        <div className="stat-label">Started</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-number">{harvestingCount}</div>
+                        <div className="stat-label">Harvesting</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-number">{completedTasks}/{tasks.length}</div>
+                        <div className="stat-label">Tasks Done</div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Progress Bar Component
+        const ProgressBar = ({ label, value, max }) => {
+            const percentage = Math.round((value / max) * 100);
+            return (
+                <div className="progress-bar-container">
+                    <div className="progress-bar-label">
+                        <span>{label}</span>
+                        <span>{percentage}%</span>
+                    </div>
+                    <div className="progress-bar">
+                        <div className="progress-bar-fill" style={{ width: `${percentage}%` }}></div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Plant Card Component
+        const PlantCard = ({ plant, onStatusChange, onSetReminder }) => {
+            const character = CHARACTERS[plant.character];
+            const plantDate = getPlantingDate(plant);
+            const transplantDate = getTransplantDate(plant);
+            const currentStatus = STATUS_OPTIONS.find(s => s.id === plant.status) || STATUS_OPTIONS[0];
+            
+            return (
+                <div className="plant-card" draggable="true" data-plant-id={plant.id}>
+                    <div className="plant-card-header">
+                        <div>
+                            <div className="plant-name">
+                                <span style={{ color: plant.color }}>●</span> {plant.name}
+                            </div>
+                            <div className="plant-character">
+                                {character.emoji} {character.name}'s Garden
+                            </div>
+                        </div>
+                        <span className={`plant-status-badge status-${plant.status || 'not-planted'}`}>
+                            {currentStatus.label}
+                        </span>
+                    </div>
+                    
+                    <div className="plant-info">
+                        <div className="plant-info-row">
+                            <span>📅 {plant.directSow ? 'Direct Sow' : 'Start Indoors'}:</span>
+                            <span>{formatDate(plantDate)}</span>
+                        </div>
+                        {transplantDate && (
+                            <div className="plant-info-row">
+                                <span>🌱 Transplant:</span>
+                                <span>{formatDate(transplantDate)}</span>
+                            </div>
+                        )}
+                        <div className="plant-info-row">
+                            <span>📏 Spacing:</span>
+                            <span>{plant.spacing}" apart</span>
+                        </div>
+                        <div className="plant-info-row">
+                            <span>⏱️ Days to Harvest:</span>
+                            <span>{plant.daysToHarvest} days</span>
+                        </div>
+                    </div>
+                    
+                    {plant.notes && (
+                        <div style={{ fontSize: '0.8rem', color: '#5D4037', marginTop: '0.5rem', fontStyle: 'italic' }}>
+                            💡 {plant.notes}
+                        </div>
+                    )}
+                    
+                    <div className="plant-actions">
+                        <select 
+                            className="plant-select"
+                            value={plant.status || 'not-planted'}
+                            onChange={(e) => onStatusChange(plant.id, e.target.value)}
+                            style={{ padding: '0.4rem', borderRadius: '10px', border: '2px solid #E8A838', fontSize: '0.75rem' }}
+                        >
+                            {STATUS_OPTIONS.map(status => (
+                                <option key={status.id} value={status.id}>{status.label}</option>
+                            ))}
+                        </select>
+                        <button className="plant-action-btn secondary" onClick={() => onSetReminder(plant)}>
+                            🔔 Remind
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Timeline View Component
+        const TimelineView = ({ plants }) => {
+            const weeks = [];
+            const startDate = new Date(2025, 0, 13); // Start from mid-January
+            
+            for (let i = 0; i < 30; i++) {
+                const weekStart = addWeeks(startDate, i);
+                const weekEnd = addWeeks(weekStart, 1);
+                const isCurrentWeek = TODAY >= weekStart && TODAY < weekEnd;
+                
+                const weekTasks = [];
+                
+                plants.forEach(plant => {
+                    const plantDate = getPlantingDate(plant);
+                    const transplantDate = getTransplantDate(plant);
+                    
+                    if (plantDate >= weekStart && plantDate < weekEnd) {
+                        weekTasks.push({
+                            plant,
+                            type: plant.directSow ? 'direct-sow' : 'start-indoor',
+                            label: plant.directSow ? 'Sow' : 'Start'
+                        });
+                    }
+                    
+                    if (transplantDate && transplantDate >= weekStart && transplantDate < weekEnd) {
+                        weekTasks.push({
+                            plant,
+                            type: 'transplant',
+                            label: 'Transplant'
+                        });
+                    }
+                });
+                
+                weeks.push({
+                    start: weekStart,
+                    isCurrent: isCurrentWeek,
+                    tasks: weekTasks
+                });
+            }
+            
+            return (
+                <div className="card">
+                    <h2 className="card-title">📅 Christopher Robin's Planting Calendar</h2>
+                    <div className="character-quote">
+                        <span className="character-name">🦉 Owl says:</span> "The best time to plant a tree was twenty years ago. The second best time is now... or according to this calendar!"
+                    </div>
+                    <div className="timeline-container">
+                        <div className="timeline">
+                            {weeks.map((week, idx) => (
+                                <div key={idx} className="timeline-week">
+                                    <div className={`timeline-week-header ${week.isCurrent ? 'current' : ''}`}>
+                                        {formatDate(week.start)}
+                                        {week.isCurrent && ' 👈'}
+                                    </div>
+                                    <div className="timeline-week-content">
+                                        {week.tasks.map((task, tidx) => (
+                                            <div 
+                                                key={tidx} 
+                                                className={`timeline-task ${task.type}`}
+                                                title={`${task.label}: ${task.plant.name}`}
+                                            >
+                                                {task.label}: {task.plant.name.split(' ')[0]}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Garden Layout Component
+        const GardenLayout = ({ plants, gardenGrid, setGardenGrid, selectedPlant, setSelectedPlant }) => {
+            const GRID_COLS = 60; // 30 feet * 2 (6" squares)
+            const GRID_ROWS = 120; // 60 feet * 2
+            
+            const handleCellClick = (row, col) => {
+                if (!selectedPlant) return;
+                
+                const newGrid = [...gardenGrid];
+                const cellKey = `${row}-${col}`;
+                
+                if (newGrid[cellKey] && newGrid[cellKey].id === selectedPlant.id) {
+                    delete newGrid[cellKey];
+                } else {
+                    newGrid[cellKey] = selectedPlant;
+                }
+                
+                setGardenGrid(newGrid);
+            };
+            
+            const getPlantedPlants = () => {
+                const planted = {};
+                Object.values(gardenGrid).forEach(plant => {
+                    if (plant) {
+                        planted[plant.id] = (planted[plant.id] || 0) + 1;
+                    }
+                });
+                return planted;
+            };
+            
+            const plantedCounts = getPlantedPlants();
+            
+            return (
+                <div className="card">
+                    <h2 className="card-title">🗺️ Rabbit's Garden Map (30' × 60')</h2>
+                    <div className="character-quote">
+                        <span className="character-name">🐰 Rabbit says:</span> "A proper garden requires proper planning! Each square is 6 inches. Click to place plants."
+                    </div>
+                    
+                    <div className="garden-tools">
+                        <label style={{ fontWeight: 600, marginRight: '0.5rem' }}>Select Plant:</label>
+                        <select 
+                            className="plant-select"
+                            value={selectedPlant?.id || ''}
+                            onChange={(e) => {
+                                const plant = plants.find(p => p.id === parseInt(e.target.value));
+                                setSelectedPlant(plant || null);
+                            }}
+                        >
+                            <option value="">-- Select a plant --</option>
+                            {plants.filter(p => p.type !== 'perennial').map(plant => (
+                                <option key={plant.id} value={plant.id}>
+                                    {plant.name} ({plant.spacing}" spacing)
+                                </option>
+                            ))}
+                        </select>
+                        <button 
+                            className="tool-btn"
+                            onClick={() => setGardenGrid({})}
+                        >
+                            🗑️ Clear All
+                        </button>
+                    </div>
+                    
+                    <div className="layout-legend">
+                        {plants.filter(p => plantedCounts[p.id]).map(plant => (
+                            <div key={plant.id} className="legend-item">
+                                <span className="legend-color" style={{ background: plant.color }}></span>
+                                <span>{plant.name.split(' ')[0]} ({plantedCounts[plant.id] || 0})</span>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="garden-layout-container">
+                        <div 
+                            className="garden-grid"
+                            style={{ 
+                                gridTemplateColumns: `repeat(${GRID_COLS}, 1fr)`,
+                                gridTemplateRows: `repeat(${Math.min(GRID_ROWS, 40)}, 1fr)`
+                            }}
+                        >
+                            {Array.from({ length: Math.min(GRID_ROWS, 40) * GRID_COLS }).map((_, idx) => {
+                                const row = Math.floor(idx / GRID_COLS);
+                                const col = idx % GRID_COLS;
+                                const cellKey = `${row}-${col}`;
+                                const cellPlant = gardenGrid[cellKey];
+                                
+                                return (
+                                    <div
+                                        key={cellKey}
+                                        className={`garden-cell ${cellPlant ? 'occupied' : ''} ${selectedPlant ? 'selectable' : ''}`}
+                                        style={cellPlant ? { backgroundColor: cellPlant.color } : {}}
+                                        onClick={() => handleCellClick(row, col)}
+                                        title={cellPlant ? cellPlant.name : `Row ${row + 1}, Col ${col + 1}`}
+                                    >
+                                        {cellPlant && cellPlant.name.charAt(0)}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    
+                    <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#5D4037' }}>
+                        💡 Tip: Showing first 20 feet of garden (scrollable). Each cell = 6" × 6". 
+                        Click cells to place selected plant. Click occupied cell to remove.
+                    </p>
+                </div>
+            );
+        };
+        
+        // Task Checklist Component
+        const TaskChecklist = ({ tasks, toggleTask }) => (
+            <div className="card">
+                <h2 className="card-title">✅ Piglet's To-Do List</h2>
+                <div className="character-quote">
+                    <span className="character-name">🐷 Piglet says:</span> "It's so much friendlier with tasks to check off!"
+                </div>
+                
+                <ul className="task-list">
+                    {tasks.map(task => (
+                        <li key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                            <div 
+                                className={`task-checkbox ${task.completed ? 'checked' : ''}`}
+                                onClick={() => toggleTask(task.id)}
+                            >
+                                {task.completed && '✓'}
+                            </div>
+                            <div className="task-content">
+                                <div className="task-text">{task.text}</div>
+                                <div className="task-date">{task.date}</div>
+                            </div>
+                            <span className={`task-priority priority-${task.priority}`}>
+                                {task.priority}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
+        
+        // Plants View Component
+        const PlantsView = ({ plants, onStatusChange, onSetReminder, filter, setFilter }) => {
+            const filteredPlants = filter === 'all' 
+                ? plants 
+                : plants.filter(p => p.type === filter);
+            
+            const plantTypes = [...new Set(plants.map(p => p.type))];
+            
+            return (
+                <div className="card">
+                    <h2 className="card-title">🌻 Owl's Plant Encyclopedia</h2>
+                    
+                    <StatusLegend />
+                    
+                    <div className="filter-buttons">
+                        <button 
+                            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+                            onClick={() => setFilter('all')}
+                        >
+                            All Plants
+                        </button>
+                        {plantTypes.map(type => (
+                            <button 
+                                key={type}
+                                className={`filter-btn ${filter === type ? 'active' : ''}`}
+                                onClick={() => setFilter(type)}
+                            >
+                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+                    
+                    <div className="plants-grid">
+                        {filteredPlants.map(plant => (
+                            <PlantCard 
+                                key={plant.id}
+                                plant={plant}
+                                onStatusChange={onStatusChange}
+                                onSetReminder={onSetReminder}
+                            />
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+        
+        // ========== MAIN APP ==========
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [plants, setPlants] = useState([]);
+            const [tasks, setTasks] = useState([]);
+            const [gardenGrid, setGardenGrid] = useState({});
+            const [selectedPlant, setSelectedPlant] = useState(null);
+            const [notifications, setNotifications] = useState([]);
+            const [filter, setFilter] = useState('all');
+            
+            // Load saved data from localStorage
+            useEffect(() => {
+                const savedPlants = localStorage.getItem('hundredAcreGarden_plants');
+                const savedTasks = localStorage.getItem('hundredAcreGarden_tasks');
+                const savedGrid = localStorage.getItem('hundredAcreGarden_grid');
+                
+                if (savedPlants) {
+                    setPlants(JSON.parse(savedPlants));
+                } else {
+                    setPlants(INITIAL_PLANTS.map(p => ({ ...p, status: 'not-planted' })));
+                }
+                
+                if (savedTasks) {
+                    setTasks(JSON.parse(savedTasks));
+                } else {
+                    // Generate initial tasks based on plant schedule
+                    const initialTasks = generateTasks(INITIAL_PLANTS);
+                    setTasks(initialTasks);
+                }
+                
+                if (savedGrid) {
+                    setGardenGrid(JSON.parse(savedGrid));
+                }
+                
+                // Check for notifications permission
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+                
+                // Show welcome notification
+                addNotification({
+                    icon: '🍯',
+                    title: 'Welcome to Hundred Acre Garden!',
+                    message: 'Time to plan your garden adventure!'
+                });
+            }, []);
+            
+            // Save data whenever it changes
+            useEffect(() => {
+                if (plants.length > 0) {
+                    localStorage.setItem('hundredAcreGarden_plants', JSON.stringify(plants));
+                }
+            }, [plants]);
+            
+            useEffect(() => {
+                if (tasks.length > 0) {
+                    localStorage.setItem('hundredAcreGarden_tasks', JSON.stringify(tasks));
+                }
+            }, [tasks]);
+            
+            useEffect(() => {
+                localStorage.setItem('hundredAcreGarden_grid', JSON.stringify(gardenGrid));
+            }, [gardenGrid]);
+            
+            const generateTasks = (plantList) => {
+                const taskList = [];
+                let taskId = 1;
+                
+                // Sort plants by planting date
+                const sortedPlants = [...plantList].sort((a, b) => {
+                    const dateA = getPlantingDate(a);
+                    const dateB = getPlantingDate(b);
+                    return dateA - dateB;
+                });
+                
+                sortedPlants.forEach(plant => {
+                    const plantDate = getPlantingDate(plant);
+                    const transplantDate = getTransplantDate(plant);
+                    
+                    // Add planting task
+                    taskList.push({
+                        id: taskId++,
+                        text: plant.directSow 
+                            ? `Direct sow ${plant.name}` 
+                            : `Start ${plant.name} seeds indoors`,
+                        date: formatDate(plantDate),
+                        plantId: plant.id,
+                        priority: plantDate <= addWeeks(TODAY, 2) ? 'high' : plantDate <= addWeeks(TODAY, 4) ? 'medium' : 'low',
+                        completed: false
+                    });
+                    
+                    // Add transplant task if applicable
+                    if (transplantDate) {
+                        taskList.push({
+                            id: taskId++,
+                            text: `Transplant ${plant.name} to garden`,
+                            date: formatDate(transplantDate),
+                            plantId: plant.id,
+                            priority: 'medium',
+                            completed: false
+                        });
+                    }
+                });
+                
+                return taskList;
+            };
+            
+            const addNotification = (notification) => {
+                const id = Date.now();
+                setNotifications(prev => [...prev, { ...notification, id }]);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    setNotifications(prev => prev.filter(n => n.id !== id));
+                }, 5000);
+                
+                // Also show browser notification if permitted
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(notification.title, {
+                        body: notification.message,
+                        icon: '🌻'
+                    });
+                }
+            };
+            
+            const handleStatusChange = (plantId, newStatus) => {
+                setPlants(prev => prev.map(p => 
+                    p.id === plantId ? { ...p, status: newStatus } : p
+                ));
+                
+                const plant = plants.find(p => p.id === plantId);
+                const statusLabel = STATUS_OPTIONS.find(s => s.id === newStatus)?.label;
+                
+                addNotification({
+                    icon: '🌱',
+                    title: 'Plant Status Updated',
+                    message: `${plant.name} is now ${statusLabel}`
+                });
+            };
+            
+            const handleSetReminder = (plant) => {
+                const plantDate = getPlantingDate(plant);
+                const transplantDate = getTransplantDate(plant);
+                
+                // Create calendar event
+                const title = encodeURIComponent(`Garden: ${plant.directSow ? 'Sow' : 'Start'} ${plant.name}`);
+                const details = encodeURIComponent(plant.notes || '');
+                const startDate = plantDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                
+                const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${startDate}/${startDate}`;
+                
+                window.open(googleCalUrl, '_blank');
+                
+                addNotification({
+                    icon: '🔔',
+                    title: 'Reminder Created',
+                    message: `Opening Google Calendar for ${plant.name}`
+                });
+            };
+            
+            const toggleTask = (taskId) => {
+                setTasks(prev => prev.map(t => 
+                    t.id === taskId ? { ...t, completed: !t.completed } : t
+                ));
+            };
+            
+            const completedTasks = tasks.filter(t => t.completed).length;
+            const startedPlants = plants.filter(p => p.status !== 'not-planted').length;
+            
+            return (
+                <div className="app-container">
+                    {/* Notifications */}
+                    <div className="notifications-panel">
+                        {notifications.map(n => (
+                            <Notification 
+                                key={n.id} 
+                                notification={n}
+                                onClose={() => setNotifications(prev => prev.filter(x => x.id !== n.id))}
+                            />
+                        ))}
+                    </div>
+                    
+                    {/* Header */}
+                    <header className="header">
+                        <h1>🍯 Hundred Acre Garden 🌻</h1>
+                        <p className="subtitle">A Garden Planner for the Thoughtful Gardener</p>
+                        <p className="date-display">
+                            Today: {TODAY.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | 
+                            Last Frost: {formatDate(LAST_FROST_DATE)} | 
+                            Zone 6 - Akron, OH
+                        </p>
+                    </header>
+                    
+                    {/* Navigation */}
+                    <nav className="nav-tabs">
+                        <button className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+                            🏠 Dashboard
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'timeline' ? 'active' : ''}`} onClick={() => setActiveTab('timeline')}>
+                            📅 Timeline
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'plants' ? 'active' : ''}`} onClick={() => setActiveTab('plants')}>
+                            🌱 Plants
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'layout' ? 'active' : ''}`} onClick={() => setActiveTab('layout')}>
+                            🗺️ Garden Layout
+                        </button>
+                        <button className={`nav-tab ${activeTab === 'tasks' ? 'active' : ''}`} onClick={() => setActiveTab('tasks')}>
+                            ✅ Tasks
+                        </button>
+                    </nav>
+                    
+                    {/* Main Content */}
+                    <main className="main-content">
+                        {activeTab === 'dashboard' && (
+                            <>
+                                <div className="card">
+                                    <h2 className="card-title">🏠 Welcome to the Thoughtful Spot</h2>
+                                    <div className="character-quote">
+                                        <span className="character-name">🍯 Pooh says:</span> "A garden is like a friend you can spend time with. Let's grow something wonderful together!"
+                                    </div>
+                                    
+                                    <StatsDashboard plants={plants} tasks={tasks} />
+                                    
+                                    <ProgressBar 
+                                        label="Seeds Started" 
+                                        value={startedPlants} 
+                                        max={plants.length} 
+                                    />
+                                    <ProgressBar 
+                                        label="Tasks Completed" 
+                                        value={completedTasks} 
+                                        max={tasks.length} 
+                                    />
+                                </div>
+                                
+                                <div className="card">
+                                    <h2 className="card-title">🚨 Coming Up This Week</h2>
+                                    {tasks.filter(t => !t.completed && t.priority === 'high').slice(0, 5).map(task => (
+                                        <div key={task.id} className="task-item">
+                                            <div 
+                                                className={`task-checkbox ${task.completed ? 'checked' : ''}`}
+                                                onClick={() => toggleTask(task.id)}
+                                            >
+                                                {task.completed && '✓'}
+                                            </div>
+                                            <div className="task-content">
+                                                <div className="task-text">{task.text}</div>
+                                                <div className="task-date">{task.date}</div>
+                                            </div>
+                                            <span className={`task-priority priority-${task.priority}`}>
+                                                {task.priority}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    {tasks.filter(t => !t.completed && t.priority === 'high').length === 0 && (
+                                        <p style={{ color: '#5D4037', fontStyle: 'italic' }}>
+                                            🎉 No urgent tasks right now! Check the timeline for what's coming up.
+                                        </p>
+                                    )}
+                                </div>
+                                
+                                <div className="card">
+                                    <h2 className="card-title">⚠️ Important Notes</h2>
+                                    <ul style={{ paddingLeft: '1.5rem', color: '#5D4037' }}>
+                                        <li style={{ marginBottom: '0.5rem' }}>
+                                            <strong>Tomatillos:</strong> You MUST plant at least 2 plants for cross-pollination!
+                                        </li>
+                                        <li style={{ marginBottom: '0.5rem' }}>
+                                            <strong>Luffa Gourd:</strong> Very challenging in Zone 6. Needs 150+ days. Start early, use black plastic mulch, and consider covering in fall.
+                                        </li>
+                                        <li style={{ marginBottom: '0.5rem' }}>
+                                            <strong>Asparagus:</strong> This is a perennial! Don't harvest for 2-3 years. Needs a dedicated bed.
+                                        </li>
+                                        <li style={{ marginBottom: '0.5rem' }}>
+                                            <strong>Corn:</strong> Plant in blocks of 4+ rows for proper wind pollination!
+                                        </li>
+                                        <li style={{ marginBottom: '0.5rem' }}>
+                                            <strong>Brussels Sprouts:</strong> Best flavor comes AFTER a frost - great fall crop!
+                                        </li>
+                                    </ul>
+                                </div>
+                            </>
+                        )}
+                        
+                        {activeTab === 'timeline' && <TimelineView plants={plants} />}
+                        
+                        {activeTab === 'plants' && (
+                            <PlantsView 
+                                plants={plants}
+                                onStatusChange={handleStatusChange}
+                                onSetReminder={handleSetReminder}
+                                filter={filter}
+                                setFilter={setFilter}
+                            />
+                        )}
+                        
+                        {activeTab === 'layout' && (
+                            <GardenLayout 
+                                plants={plants}
+                                gardenGrid={gardenGrid}
+                                setGardenGrid={setGardenGrid}
+                                selectedPlant={selectedPlant}
+                                setSelectedPlant={setSelectedPlant}
+                            />
+                        )}
+                        
+                        {activeTab === 'tasks' && <TaskChecklist tasks={tasks} toggleTask={toggleTask} />}
+                    </main>
+                    
+                    {/* Footer */}
+                    <footer style={{ textAlign: 'center', padding: '2rem', color: 'white', opacity: 0.8 }}>
+                        <p style={{ fontFamily: 'Caveat, cursive', fontSize: '1.5rem' }}>
+                            "Sometimes the smallest things take up the most room in your heart." - Winnie the Pooh
+                        </p>
+                        <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+                            Garden data is saved in your browser. Happy growing! 🌱
+                        </p>
+                    </footer>
+                </div>
+            );
+        };
+        
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
