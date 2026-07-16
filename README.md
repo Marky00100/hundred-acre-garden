@@ -1,6 +1,6 @@
 # 🍯 Hundred Acre Garden
 
-A whimsical garden planning dashboard themed around Winnie the Pooh's Hundred Acre Wood. Built for Zone 6 gardening in Akron, Ohio.
+This was a test with AI prompting to get a website built, using our garden planning as a use case. A whimsical garden planning dashboard themed around Winnie the Pooh's Hundred Acre Wood. Built for Zone 6 gardening in Akron, Ohio.
 
 ![Garden Planner Preview](https://img.shields.io/badge/Theme-Hundred%20Acre%20Wood-E8A838?style=for-the-badge)
 ![Zone](https://img.shields.io/badge/Zone-6-4A7C42?style=for-the-badge)
